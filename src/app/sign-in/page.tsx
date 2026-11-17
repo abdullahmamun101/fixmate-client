@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -22,7 +24,8 @@ export default function SignInPage() {
     if (error) {
       setMessage(error.message || "Login failed");
     } else {
-      setMessage("Login successful!");
+      router.push("/");
+      router.refresh();
     }
 
     setLoading(false);
