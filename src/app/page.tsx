@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import CategorySection from "@/components/CategorySection";
 import HowItWorks from "@/components/HowItWorks";
 import LatestServices from "@/components/LatestServices";
+import WhyChooseFixMate from "@/components/WhyChooseFixMate";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <CategorySection />
       <HowItWorks />
       <LatestServices />
+      <WhyChooseFixMate />
     </main>
   );
 }
