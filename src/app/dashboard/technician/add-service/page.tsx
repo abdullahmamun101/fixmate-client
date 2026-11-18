@@ -5,8 +5,12 @@ import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 export default function AddServicePage() {
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -16,15 +20,19 @@ export default function AddServicePage() {
     serviceMode: "onsite",
     serviceArea: "",
     estimatedDuration: "",
-    image: "",
   });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!selectedImage) {
+      toast.error("Please select a service image");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Get authentication token
       const { data: tokenData, error: tokenError } =
         await authClient.token();
 
@@ -34,9 +42,32 @@ export default function AddServicePage() {
 
       const token = tokenData.token;
 
-      // Send service data to server
+      // Upload image to ImgBB
+      const imageFormData = new FormData();
+      imageFormData.append("image", selectedImage);
+
+      const uploadResponse = await fetch(
+        `${API_URL}/api/upload-image`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: imageFormData,
+        }
+      );
+
+      const uploadData = await uploadResponse.json();
+
+      if (!uploadResponse.ok) {
+        throw new Error(
+          uploadData.message || "Image upload failed"
+        );
+      }
+
+      // Submit service with uploaded image URL
       const response = await fetch(
-        "http://localhost:5000/api/technician/services",
+        `${API_URL}/api/technician/services`,
         {
           method: "POST",
           headers: {
@@ -46,6 +77,7 @@ export default function AddServicePage() {
           body: JSON.stringify({
             ...formData,
             basePrice: Number(formData.basePrice),
+            image: uploadData.imageUrl,
           }),
         }
       );
@@ -68,8 +100,15 @@ export default function AddServicePage() {
         serviceMode: "onsite",
         serviceArea: "",
         estimatedDuration: "",
-        image: "",
       });
+
+      setSelectedImage(null);
+
+      const fileInput = document.getElementById(
+        "service-image"
+      ) as HTMLInputElement | null;
+
+      if (fileInput) fileInput.value = "";
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -233,20 +272,35 @@ export default function AddServicePage() {
 
         <div>
           <label className="mb-2 block font-medium">
-            Image URL
+            Service Image
           </label>
           <input
-            type="url"
-            value={formData.image}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                image: e.target.value,
-              })
-            }
+            id="service-image"
+            required
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+
+              if (file && file.size > 5 * 1024 * 1024) {
+                toast.error("Image must be smaller than 5 MB");
+                e.target.value = "";
+                setSelectedImage(null);
+                return;
+              }
+
+              setSelectedImage(file);
+            }}
             className="w-full rounded-lg border p-3"
-            placeholder="Enter image URL"
           />
+          <p className="mt-2 text-xs text-gray-500">
+            Select an image. Maximum size: 5 MB.
+          </p>
+          {selectedImage && (
+            <p className="mt-2 text-sm text-green-600">
+              Selected: {selectedImage.name}
+            </p>
+          )}
         </div>
 
         <button
@@ -254,10 +308,11 @@ export default function AddServicePage() {
           type="submit"
           className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? "Submitting..." : "Submit Service"}
+          {loading ? "Uploading & Submitting..." : "Submit Service"}
         </button>
       </form>
     </div>
   );
 }
+
 
