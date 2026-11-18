@@ -1,10 +1,12 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, SlidersHorizontal, Wrench, MapPin } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface Service {
   _id: string;
@@ -12,14 +14,11 @@ interface Service {
   category: string;
   description: string;
   image?: string;
-  imageUrl?: string;
-  price?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  area?: string;
-  location?: string;
-  availability?: string;
-  status?: string;
+  basePrice: number;
+  serviceArea?: string;
+  serviceMode?: string;
+  approvalStatus: string;
+  isAvailable: boolean;
 }
 
 export default function ServicesPage() {
@@ -33,6 +32,11 @@ export default function ServicesPage() {
     const loadServices = async () => {
       try {
         const response = await fetch(`${API_URL}/api/services`);
+
+        if (!response.ok) {
+          throw new Error("Failed to load services");
+        }
+
         const data = await response.json();
 
         const serviceList = Array.isArray(data)
@@ -52,41 +56,39 @@ export default function ServicesPage() {
 
   const categories = [
     "All",
-    ...Array.from(new Set(services.map((service) => service.category))),
+    ...Array.from(
+      new Set(services.map((service) => service.category))
+    ),
   ];
 
   const filteredServices = services
     .filter(
       (service) =>
-        service.status === "approved" &&
-        service.availability !== "unavailable"
+        service.approvalStatus === "approved" &&
+        service.isAvailable === true
     )
     .filter((service) => {
+      const searchTerm = search.toLowerCase();
+
       const matchesCategory =
         category === "All" || service.category === category;
 
       const matchesSearch =
-        service.title.toLowerCase().includes(search.toLowerCase()) ||
-        service.category.toLowerCase().includes(search.toLowerCase()) ||
-        service.description?.toLowerCase().includes(search.toLowerCase()) ||
-        service.area?.toLowerCase().includes(search.toLowerCase()) ||
-        service.location?.toLowerCase().includes(search.toLowerCase());
+        service.title?.toLowerCase().includes(searchTerm) ||
+        service.category?.toLowerCase().includes(searchTerm) ||
+        service.description?.toLowerCase().includes(searchTerm) ||
+        service.serviceArea?.toLowerCase().includes(searchTerm);
 
       return matchesCategory && matchesSearch;
     })
     .sort((a, b) => {
-      const priceA = a.minPrice ?? a.price ?? 0;
-      const priceB = b.minPrice ?? b.price ?? 0;
-
-      if (sort === "low") return priceA - priceB;
-      if (sort === "high") return priceB - priceA;
-
+      if (sort === "low") return a.basePrice - b.basePrice;
+      if (sort === "high") return b.basePrice - a.basePrice;
       return 0;
     });
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Header */}
       <section className="bg-blue-50 px-6 py-16 text-center">
         <div className="mx-auto max-w-3xl">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-white">
@@ -104,7 +106,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Search & Filters */}
       <section className="mx-auto max-w-7xl px-6 py-10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full lg:max-w-md">
@@ -151,7 +152,6 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        {/* Results */}
         <div className="mt-8 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">
             Available Services
@@ -164,7 +164,6 @@ export default function ServicesPage() {
           )}
         </div>
 
-        {/* Loading */}
         {loading && (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((item) => (
@@ -184,7 +183,6 @@ export default function ServicesPage() {
           </div>
         )}
 
-        {/* Service Cards */}
         {!loading && filteredServices.length > 0 && (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredServices.map((service) => (
@@ -193,9 +191,9 @@ export default function ServicesPage() {
                 className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative h-52 overflow-hidden bg-gray-100">
-                  {(service.image || service.imageUrl) ? (
+                  {service.image ? (
                     <img
-                      src={service.image || service.imageUrl}
+                      src={service.image}
                       alt={service.title}
                       className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                     />
@@ -221,20 +219,14 @@ export default function ServicesPage() {
 
                   <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
                     <MapPin size={16} />
-                    {service.area || service.location || "Location not specified"}
+                    {service.serviceArea || "Location not specified"}
                   </div>
 
                   <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
                     <div>
                       <p className="text-xs text-gray-500">Starting from</p>
                       <p className="text-lg font-bold text-blue-600">
-                        ৳
-                        {(
-                          service.minPrice ??
-                          service.price ??
-                          service.maxPrice ??
-                          0
-                        ).toLocaleString()}
+                        ৳{service.basePrice.toLocaleString()}
                       </p>
                     </div>
 
@@ -251,7 +243,6 @@ export default function ServicesPage() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && filteredServices.length === 0 && (
           <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 px-6 py-16 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
@@ -282,3 +273,4 @@ export default function ServicesPage() {
     </main>
   );
 }
+
