@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import CategorySection from "@/components/CategorySection";
 import HowItWorks from "@/components/HowItWorks";
+import LatestServices from "@/components/LatestServices";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <CategorySection />
       <HowItWorks />
+      <LatestServices />
     </main>
   );
 }
