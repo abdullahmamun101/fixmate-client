@@ -11,12 +11,11 @@ type Service = {
   category: string;
   description?: string;
   image?: string;
-  price?: number;
-  minPrice?: number;
-  maxPrice?: number;
+  basePrice: number;
   serviceArea?: string;
   estimatedDuration?: string;
-  rating?: number;
+  approvalStatus: string;
+  isAvailable: boolean;
 };
 
 const API_URL =
@@ -44,9 +43,9 @@ export default function LatestServices() {
             : [];
 
         const approvedServices = serviceList.filter(
-          (service: Service & { status?: string; availability?: string }) =>
-            service.status === "approved" &&
-            service.availability !== "unavailable",
+          (service: Service) =>
+            service.approvalStatus === "approved" &&
+            service.isAvailable === true
         );
 
         setServices(approvedServices.slice(0, 6));
@@ -63,7 +62,6 @@ export default function LatestServices() {
   return (
     <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
       <div className="mx-auto max-w-7xl">
-        {/* Heading */}
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <span className="text-sm font-bold uppercase tracking-widest text-blue-600">
@@ -88,7 +86,6 @@ export default function LatestServices() {
           </Link>
         </div>
 
-        {/* Loading */}
         {loading && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -108,7 +105,6 @@ export default function LatestServices() {
           </div>
         )}
 
-        {/* Services */}
         {!loading && services.length > 0 && (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
@@ -122,7 +118,8 @@ export default function LatestServices() {
                     <img
                       src={service.image}
                       alt={service.title}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"/>
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
                   ) : (
                     <div className="flex h-full items-center justify-center text-blue-300">
                       <Wrench size={48} />
@@ -144,12 +141,12 @@ export default function LatestServices() {
                   </p>
 
                   <div className="mt-4 space-y-2 text-sm text-slate-500">
-                    {service.serviceArea && (
-                      <p className="flex items-center gap-2">
-                        <MapPin size={16} className="shrink-0 text-blue-600" />
-                        <span className="truncate">{service.serviceArea}</span>
-                      </p>
-                    )}
+                    <p className="flex items-center gap-2">
+                      <MapPin size={16} className="shrink-0 text-blue-600" />
+                      <span className="truncate">
+                        {service.serviceArea || "Location not specified"}
+                      </span>
+                    </p>
 
                     {service.estimatedDuration && (
                       <p className="flex items-center gap-2">
@@ -163,11 +160,7 @@ export default function LatestServices() {
                     <div>
                       <p className="text-xs text-slate-500">Starting from</p>
                       <p className="mt-1 text-lg font-extrabold text-blue-600">
-                        ৳
-                        {service.minPrice ??
-                          service.price ??
-                          service.maxPrice ??
-                          "—"}
+                        ৳{service.basePrice.toLocaleString()}
                       </p>
                     </div>
 
@@ -181,7 +174,6 @@ export default function LatestServices() {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && services.length === 0 && (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-16 text-center">
             <Wrench className="mx-auto text-blue-500" size={40} />
@@ -197,3 +189,4 @@ export default function LatestServices() {
     </section>
   );
 }
+
