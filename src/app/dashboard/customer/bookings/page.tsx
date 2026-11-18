@@ -23,6 +23,7 @@ export default function CustomerBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState("");
+  const [payingId, setPayingId] = useState("");
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -112,6 +113,49 @@ export default function CustomerBookingsPage() {
     }
   };
 
+  const payNow = async (id: string) => {
+    try {
+      setPayingId(id);
+
+      const { data: tokenData, error } = await authClient.token();
+
+      if (error || !tokenData?.token) {
+        throw new Error("Please login first");
+      }
+
+      const response = await fetch(
+        "http://localhost:5000/api/payments/create-checkout-session",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+          body: JSON.stringify({ bookingId: id }),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          responseData.message || "Failed to start payment"
+        );
+      }
+
+      if (!responseData.url) {
+        throw new Error("Payment URL not received");
+      }
+
+      window.location.href = responseData.url;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Payment failed"
+      );
+      setPayingId("");
+    }
+  };
+
   if (loading) {
     return <div className="p-6">Loading bookings...</div>;
   }
@@ -182,11 +226,12 @@ export default function CustomerBookingsPage() {
                   {booking.problemDescription || "N/A"}
                 </p>
 
-                {booking.finalAmount !== undefined && (
-                  <p>
-                    <strong>Final Amount:</strong> ৳{booking.finalAmount}
-                  </p>
-                )}
+                {booking.finalAmount !== undefined &&
+                  booking.finalAmount !== null && (
+                    <p>
+                      <strong>Final Amount:</strong> ৳{booking.finalAmount}
+                    </p>
+                  )}
 
                 <p>
                   <strong>Payment:</strong>{" "}
@@ -205,6 +250,19 @@ export default function CustomerBookingsPage() {
                     : "Cancel Booking"}
                 </button>
               )}
+
+              {booking.status === "completed" &&
+                (booking.paymentStatus || "unpaid") === "unpaid" && (
+                  <button
+                    disabled={payingId === booking._id}
+                    onClick={() => payNow(booking._id)}
+                    className="mt-5 rounded-lg bg-blue-600 px-5 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {payingId === booking._id
+                      ? "Redirecting..."
+                      : "Pay Now"}
+                  </button>
+                )}
             </div>
           ))}
         </div>
@@ -212,3 +270,4 @@ export default function CustomerBookingsPage() {
     </div>
   );
 }
+
