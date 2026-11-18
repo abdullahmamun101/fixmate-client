@@ -12,13 +12,18 @@ import {
   LayoutDashboard,
   Wrench,
   LogOut,
+  Sun,
+  Moon,
 } from "lucide-react";
+
+import { useTheme } from "next-themes";
 import { authClient } from "@/lib/auth-client";
 
 export default function Navbar() {
   const { data: session } = authClient.useSession();
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -82,11 +87,10 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`text-sm font-semibold transition ${
-                isActive(link.href)
-                  ? "text-blue-600"
-                  : "text-gray-600 hover:text-blue-600"
-              }`}
+              className={`text-sm font-semibold transition ${isActive(link.href)
+                ? "text-blue-600"
+                : "text-gray-600 hover:text-blue-600"
+                }`}
             >
               {link.name}
             </Link>
@@ -95,6 +99,15 @@ export default function Navbar() {
 
         {/* Desktop Account */}
         <div className="hidden items-center gap-4 md:flex">
+
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-700 transition hover:bg-gray-100"
+          >
+            {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+          </button>
+
           {session ? (
             <div className="relative">
               <button
@@ -185,17 +198,25 @@ export default function Navbar() {
       {/* Mobile Navigation */}
       {menuOpen && (
         <div className="border-t border-gray-200 bg-white px-4 pb-5 pt-3 shadow-lg md:hidden">
+
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="mb-3 flex w-full items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+          </button>
+
           <div className="space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={closeMenus}
-                className={`block rounded-lg px-4 py-3 text-sm font-semibold transition ${
-                  isActive(link.href)
-                    ? "bg-blue-50 text-blue-600"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
+                className={`block rounded-lg px-4 py-3 text-sm font-semibold transition ${isActive(link.href)
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-700 hover:bg-gray-50"
+                  }`}
               >
                 {link.name}
               </Link>
