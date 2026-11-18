@@ -4,6 +4,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { MapPin, Clock, Wrench, ArrowLeft } from "lucide-react";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface Service {
   _id: string;
@@ -12,6 +16,9 @@ interface Service {
   description: string;
   basePrice: number;
   serviceMode: string;
+  serviceArea?: string;
+  estimatedDuration?: string;
+  image?: string;
 }
 
 export default function ServiceDetailsPage() {
@@ -25,10 +32,7 @@ export default function ServiceDetailsPage() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/services/${id}`
-        );
-
+        const response = await fetch(`${API_URL}/api/services/${id}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -49,15 +53,24 @@ export default function ServiceDetailsPage() {
   }, [id]);
 
   if (loading) {
-    return <p className="p-10 text-white">Loading service details...</p>;
+    return (
+      <main className="min-h-screen bg-white p-10 text-center text-gray-600">
+        Loading service details...
+      </main>
+    );
   }
 
   if (error || !service) {
     return (
-      <main className="min-h-screen bg-zinc-950 p-10 text-white">
-        <h1 className="text-2xl font-bold">Service Not Found</h1>
-        <p className="mt-3 text-zinc-400">{error}</p>
-        <Link href="/services" className="mt-5 inline-block text-blue-400">
+      <main className="min-h-screen bg-white px-6 py-20 text-center">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Service Not Found
+        </h1>
+        <p className="mt-3 text-gray-500">{error}</p>
+        <Link
+          href="/services"
+          className="mt-6 inline-block text-blue-600"
+        >
           Back to Services
         </Link>
       </main>
@@ -65,39 +78,86 @@ export default function ServiceDetailsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 px-6 py-16 text-white">
-      <div className="mx-auto max-w-3xl rounded-xl border border-zinc-800 bg-zinc-900 p-8">
-        <p className="text-blue-400">{service.category}</p>
-
-        <h1 className="mt-4 text-3xl font-bold">{service.title}</h1>
-
-        <p className="mt-6 leading-7 text-zinc-300">
-          {service.description}
-        </p>
-
-        <div className="mt-8 space-y-3 border-t border-zinc-700 pt-6">
-          <p>
-            <span className="text-zinc-400">Starting Price:</span>{" "}
-            ৳{service.basePrice}
-          </p>
-
-          <p>
-            <span className="text-zinc-400">Service Mode:</span>{" "}
-            {service.serviceMode}
-          </p>
-        </div>
-
-        <button
-          disabled
-          className="mt-8 cursor-not-allowed rounded-lg bg-blue-600 px-6 py-3 font-semibold opacity-60"
+    <main className="min-h-screen bg-gray-50 px-6 py-12">
+      <div className="mx-auto max-w-4xl">
+        <Link
+          href="/services"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600"
         >
-          Booking — Coming Next
-        </button>
+          <ArrowLeft size={18} />
+          Back to Services
+        </Link>
 
-        <div>
-          <Link href="/services" className="mt-6 inline-block text-blue-400">
-            ← Back to Services
-          </Link>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          {service.image && (
+            <img
+              src={service.image}
+              alt={service.title}
+              className="h-72 w-full object-cover"
+            />
+          )}
+
+          <div className="p-6 sm:p-10">
+            <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
+              {service.category}
+            </span>
+
+            <h1 className="mt-6 text-3xl font-bold text-gray-900">
+              {service.title}
+            </h1>
+
+            <p className="mt-5 leading-7 text-gray-600">
+              {service.description}
+            </p>
+
+            <div className="mt-8 grid gap-5 border-t border-gray-100 pt-6 sm:grid-cols-2">
+              <div className="flex items-center gap-3">
+                <Wrench className="text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-500">Service Mode</p>
+                  <p className="font-medium text-gray-900">
+                    {service.serviceMode}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <MapPin className="text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-500">Service Area</p>
+                  <p className="font-medium text-gray-900">
+                    {service.serviceArea || "Not specified"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Clock className="text-blue-600" />
+                <div>
+                  <p className="text-sm text-gray-500">Estimated Duration</p>
+                  <p className="font-medium text-gray-900">
+                    {service.estimatedDuration || "Not specified"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-4 border-t border-gray-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Starting Price</p>
+                <p className="text-3xl font-bold text-blue-600">
+                  ৳{service.basePrice.toLocaleString()}
+                </p>
+              </div>
+
+              <Link
+                href={`/services/${service._id}/book`}
+                className="rounded-xl bg-blue-600 px-8 py-3 text-center font-semibold text-white transition hover:bg-blue-700"
+              >
+                Book This Service
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </main>

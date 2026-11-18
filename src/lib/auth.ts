@@ -9,7 +9,9 @@ if (process.env.NODE_ENV === "development") {
   dns.setServers(["8.8.8.8", "1.1.1.1"]);
 }
 
-const client = new MongoClient(process.env.MONGODB_URI!);
+const client = new MongoClient(process.env.MONGODB_URI!, {
+  serverSelectionTimeoutMS: 10000,
+});
 
 const db = client.db(process.env.DB_NAME);
 
@@ -47,14 +49,15 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
 
   plugins: [
-  jwt({
-    jwt: {
-      definePayload: ({ user }) => ({
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      }),
-    },
-  }),
-],
+    jwt({
+      jwt: {
+        definePayload: ({ user }) => ({
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        }),
+      },
+    }),
+  ],
 });
+

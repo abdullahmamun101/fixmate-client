@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -10,24 +12,35 @@ export default function SignUpPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const { error } = await authClient.signUp.email({
-      name,
-      email,
-      password,
-    });
+    try {
+      const { error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
 
-    if (error) {
-      setMessage(error.message || "Signup failed");
-    } else {
+      if (error) {
+        setMessage(error.message || "Signup failed");
+        return;
+      }
+
       setMessage("Account created successfully!");
-    }
 
-    setLoading(false);
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("SIGN UP ERROR:", error);
+      setMessage("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

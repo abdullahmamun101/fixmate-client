@@ -11,24 +11,33 @@ export default function SignInPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+ const handleSignIn = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    const { error } = await authClient.signIn.email({
+  try {
+    const { data, error } = await authClient.signIn.email({
       email,
       password,
     });
 
     if (error) {
+      console.log("SIGN IN ERROR:", error);
       setMessage(error.message || "Login failed");
-    } else {
-      router.push("/");
-      router.refresh();
+      return;
     }
 
+    console.log("SIGN IN SUCCESS:", data);
+
+    router.push("/");
+    router.refresh();
+  } catch (err) {
+    console.error("LOGIN EXCEPTION:", err);
+    setMessage("Something went wrong. Check the browser console.");
+  } finally {
     setLoading(false);
+  }
   };
 
   return (
