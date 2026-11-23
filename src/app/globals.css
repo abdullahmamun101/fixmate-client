@@ -39,6 +39,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+    --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -51,6 +53,9 @@
 
 :root {
   color-scheme: light;
+
+  --brand: oklch(0.6 0.2 255);
+  --brand-foreground: oklch(0.985 0 0);
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -93,6 +98,9 @@
 
 .dark {
   color-scheme: dark;
+
+  --brand: oklch(0.68 0.19 250);
+  --brand-foreground: oklch(0.145 0 0);
 
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);

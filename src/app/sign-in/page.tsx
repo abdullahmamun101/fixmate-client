@@ -1,80 +1,111 @@
 "use client";
 
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+
+const dashboardFor = (role?: string) =>
+  role === "admin"
+    ? "/dashboard/admin"
+    : role === "technician"
+      ? "/dashboard/technician"
+      : "/dashboard/customer";
+
+const inputClass =
+  "w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-brand focus:ring-2 focus:ring-brand/30";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
- const handleSignIn = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage("");
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const { data, error } = await authClient.signIn.email({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
 
-    if (error) {
-      console.log("SIGN IN ERROR:", error);
-      setMessage(error.message || "Login failed");
-      return;
+      if (error) {
+        toast.error(error.message || "Invalid email or password");
+        return;
+      }
+
+      const role = (data?.user as { role?: string } | undefined)?.role;
+
+      toast.success("Signed in successfully");
+      router.push(dashboardFor(role));
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    console.log("SIGN IN SUCCESS:", data);
-
-    router.push("/");
-    router.refresh();
-  } catch (err) {
-    console.error("LOGIN EXCEPTION:", err);
-    setMessage("Something went wrong. Check the browser console.");
-  } finally {
-    setLoading(false);
-  }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <main className="flex min-h-[calc(100vh-5rem)] items-center justify-center px-4 py-10 sm:px-6">
       <form
         onSubmit={handleSignIn}
-        className="w-full max-w-md space-y-4 p-6"
+        className="w-full max-w-md space-y-5 rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-lg sm:p-8"
       >
-        <h1 className="text-3xl font-bold">Welcome Back</h1>
+        <div>
+          <h1 className="text-2xl font-extrabold sm:text-3xl">Welcome Back</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sign in to manage your repair requests.
+          </p>
+        </div>
 
-        <input
-          className="w-full rounded border p-3"
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+        <div className="space-y-2">
+          <label htmlFor="email" className="text-sm font-semibold">
+            Email
+          </label>
+          <input
+            id="email"
+            className={inputClass}
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-        <input
-          className="w-full rounded border p-3"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div className="space-y-2">
+          <label htmlFor="password" className="text-sm font-semibold">
+            Password
+          </label>
+          <input
+            id="password"
+            className={inputClass}
+            type="password"
+            placeholder="Your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
         <button
           disabled={loading}
-          className="w-full rounded bg-black p-3 text-white"
+          className="w-full rounded-full bg-brand px-4 py-3 text-sm font-bold text-brand-foreground shadow-sm transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Logging in..." : "Sign In"}
+          {loading ? "Signing in..." : "Sign In"}
         </button>
 
-        {message && <p>{message}</p>}
+        <p className="text-center text-sm text-muted-foreground">
+          New to FixMate?{" "}
+          <Link href="/sign-up" className="font-semibold text-brand hover:underline">
+            Create an account
+          </Link>
+        </p>
       </form>
-    </div>
+    </main>
   );
 }
