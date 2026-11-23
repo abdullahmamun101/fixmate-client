@@ -28,7 +28,7 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "customer",
-        input: false,
+        input: true,
       },
       phone: {
         type: "string",
@@ -41,6 +41,24 @@ export const auth = betterAuth({
       bio: {
         type: "string",
         required: false,
+      },
+    },
+  },
+
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const safeRole =
+            user.role === "technician" ? "technician" : "customer";
+
+          return {
+            data: {
+              ...user,
+              role: safeRole,
+            },
+          };
+        },
       },
     },
   },
@@ -60,4 +78,5 @@ export const auth = betterAuth({
     }),
   ],
 });
+
 

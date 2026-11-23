@@ -9,6 +9,7 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"customer" | "technician">("customer");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,11 +21,16 @@ export default function SignUpPage() {
     setMessage("");
 
     try {
-      const { error } = await authClient.signUp.email({
+      const signUpData = {
         name,
         email,
         password,
-      });
+        role,
+      };
+
+      const { error } = await authClient.signUp.email(
+        signUpData as Parameters<typeof authClient.signUp.email>[0]
+      );
 
       if (error) {
         setMessage(error.message || "Signup failed");
@@ -68,6 +74,23 @@ export default function SignUpPage() {
           required
         />
 
+        <div>
+          <label className="mb-2 block font-medium">
+            Select Account Type
+          </label>
+
+          <select
+            className="w-full rounded border p-3"
+            value={role}
+            onChange={(e) =>
+              setRole(e.target.value as "customer" | "technician")
+            }
+          >
+            <option value="customer">Customer</option>
+            <option value="technician">Technician</option>
+          </select>
+        </div>
+
         <input
           className="w-full rounded border p-3"
           type="password"
@@ -79,6 +102,7 @@ export default function SignUpPage() {
         />
 
         <button
+          type="submit"
           disabled={loading}
           className="w-full rounded bg-black p-3 text-white disabled:opacity-50"
         >
@@ -90,3 +114,4 @@ export default function SignUpPage() {
     </div>
   );
 }
+
