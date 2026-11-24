@@ -13,6 +13,9 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 type Booking = {
   _id: string;
   serviceTitle?: string;
@@ -35,7 +38,7 @@ export default function CustomerDashboardPage() {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/bookings/my-bookings",
+        `${API_URL}/api/bookings/my-bookings`,
         {
           headers: {
             Authorization: `Bearer ${tokenData.token}`,
