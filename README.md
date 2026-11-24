@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+FixMate — Smart Device & Home Appliance Repair Platform
 
-## Getting Started
+FixMate is a full-stack repair service booking platform that connects customers with technicians. Customers can explore repair services, request repairs, track job progress, and pay securely after service completion. Technicians can manage their services and repair requests, while admins manage users, service approvals, bookings, and payments.
 
-First, run the development server:
+Live Website
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Frontend: https://fixmate-client-sepia.vercel.app
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Backend API: https://fixmate-server-4if8.onrender.com
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Client Repository: https://github.com/abdullahmamun101/fixmate-client
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Server Repository: https://github.com/abdullahmamun101/fixmate-server
 
-## Learn More
+Admin Credentials
 
-To learn more about Next.js, take a look at the following resources:
+Email: admin@gmail.com
+Password: admin1234
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Technician Credentials
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Email: technician@gmail.com
+Password: Technician1234
 
-## Deploy on Vercel
+Customer Credentials
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Email: customer@gmail.com
+Password: Customer1234
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Key Features
+
+Role-based authentication for Customers, Technicians, and Admins using Better Auth.
+
+Browse approved repair services with search, category filtering, and sorting.
+
+View detailed service information and technician profiles.
+
+Submit repair requests with preferred dates, contact information, and problem descriptions.
+
+Track booking progress through Requested, Accepted, In Progress, and Completed statuses.
+
+Technicians can create, update, and manage their repair services.
+
+Technicians can accept, reject, and update their assigned repair requests.
+
+Admin dashboard for user management, service approvals, bookings, and transactions.
+
+Secure Stripe Checkout payment after job completion.
+
+Stripe webhook integration for payment verification and database updates.
+
+Customer payment history and booking management.
+
+Profile management with ImgBB image uploads.
+
+Responsive design for desktop, tablet, and mobile devices.
+
+Toast notifications, loading states, and error handling.
+
+Technology Stack
+
+Frontend
+
+Next.js
+
+React
+
+TypeScript
+
+Tailwind CSS
+
+Better Auth
+
+Lucide React
+
+Sonner
+
+Backend
+
+Node.js
+
+Express.js
+
+MongoDB
+
+JWT
+
+Stripe
+
+ImgBB API
+
+Deployment
+
+Vercel (Frontend)
+
+Render (Backend)
+
+MongoDB Atlas (Database)
