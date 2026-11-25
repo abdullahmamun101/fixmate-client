@@ -9,9 +9,19 @@ if (process.env.NODE_ENV === "development") {
   dns.setServers(["8.8.8.8", "1.1.1.1"]);
 }
 
-const client = new MongoClient(process.env.MONGODB_URI!, {
-  serverSelectionTimeoutMS: 10000,
-});
+const globalForMongo = globalThis as unknown as {
+  _mongoClient?: MongoClient;
+};
+
+const client =
+  globalForMongo._mongoClient ??
+  new MongoClient(process.env.MONGODB_URI!, {
+    serverSelectionTimeoutMS: 10000,
+    maxPoolSize: 5,
+    maxIdleTimeMS: 10000,
+  });
+
+globalForMongo._mongoClient = client;
 
 const db = client.db(process.env.DB_NAME);
 
