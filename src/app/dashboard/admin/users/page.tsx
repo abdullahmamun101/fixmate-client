@@ -12,7 +12,7 @@ type User = {
   role: "customer" | "technician" | "admin";
 };
 
-const API = "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);

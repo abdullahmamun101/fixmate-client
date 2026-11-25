@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PlusCircle, Wrench, CheckCircle2, Clock } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Service = {
   _id: string;
@@ -34,7 +35,7 @@ export default function MyServicesPage() {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/technician/my-services",
+            `${API_URL}/api/technician/my-services`,
           {
             headers: {
               Authorization: `Bearer ${tokenData.token}`,

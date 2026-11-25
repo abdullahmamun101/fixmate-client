@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ClipboardList, Clock, CheckCircle2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Booking = {
   _id: string;
@@ -33,7 +34,7 @@ export default function TechnicianRequestsPage() {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/technician/requests",
+        `${API_URL}/api/technician/requests`,
         {
           headers: {
             Authorization: `Bearer ${tokenData.token}`,
@@ -84,7 +85,7 @@ export default function TechnicianRequestsPage() {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/technician/requests/${id}/status`,
+        `${API_URL}/api/technician/requests/${id}/status`,
         {
           method: "PATCH",
           headers: {

@@ -25,7 +25,7 @@ export default function AdminServicesPage() {
       const token = await authClient.token();
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/services`,
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL}/api/admin/services`}`,
         {
           headers: {
             Authorization: `Bearer ${token.data?.token}`,
@@ -64,7 +64,7 @@ export default function AdminServicesPage() {
       const token = await authClient.token();
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/admin/services/${id}/status`,
+        `${process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL}/api/admin/services/${id}/status`}`,
         {
           method: "PATCH",
           headers: {

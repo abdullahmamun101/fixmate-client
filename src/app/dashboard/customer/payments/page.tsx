@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { CreditCard, Banknote, CheckCircle2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type Payment = {
   _id: string;
@@ -32,7 +33,7 @@ export default function CustomerPaymentsPage() {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/payments/my-payments`,
+        `${API_URL}/api/payments/my-payments`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
